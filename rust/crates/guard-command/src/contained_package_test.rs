@@ -206,6 +206,10 @@ pub(crate) fn script_tokens(
             let call: Vec<String> = rest.iter().chain(passthrough.iter()).cloned().collect();
             crate::contained_argv::tsd_contained_call(&call)
         }
+        "cucumber-js" => {
+            let call: Vec<String> = rest.iter().chain(passthrough.iter()).cloned().collect();
+            crate::contained_argv::cucumber_contained_call(&call)
+        }
         _ => false,
     };
     let bun = program_name(runner) == "bun" && {

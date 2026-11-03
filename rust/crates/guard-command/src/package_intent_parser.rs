@@ -165,6 +165,7 @@ static PACKAGE_COMMAND_NAMES: LazyLock<HashSet<&'static str>> = LazyLock::new(||
 fn local_executable_package_alias(name: &str) -> &str {
     match name {
         "tsc" => "typescript",
+        "cucumber-js" => "@cucumber/cucumber",
         other => other,
     }
 }

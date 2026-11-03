@@ -69,6 +69,7 @@ const EXTRA_MUTABLE_LAUNCHERS: &[&str] = &[
     "uvu",
     "tape",
     "tsd",
+    "cucumber-js",
     "rake",
     "gradle",
     "mvn",

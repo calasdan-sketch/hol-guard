@@ -343,6 +343,10 @@ fn prepare_vitest(input: &Input) -> Result<Value, RestrictedPytestError> {
         "uvu" => ("uvu/package.json", &["uvu/bin.js"]),
         "tape" => ("tape/package.json", &["tape/bin/tape"]),
         "tsd" => ("tsd/package.json", &["tsd/dist/cli.js"]),
+        "cucumber-js" => (
+            "@cucumber/cucumber/package.json",
+            &["@cucumber/cucumber/bin/cucumber.js"],
+        ),
         _ => ("vitest/vitest.mjs", &["vitest/vitest.mjs"]),
     };
     let modules = nearest_project_root(cwd, workspace, &format!("node_modules/{installed}"))?
@@ -399,6 +403,7 @@ fn prepare_vitest(input: &Input) -> Result<Value, RestrictedPytestError> {
                 "uvu" => "uvu is not installed inside this workspace. Guard did not download or execute a replacement.",
                 "tape" => "tape is not installed inside this workspace. Guard did not download or execute a replacement.",
                 "tsd" => "tsd is not installed inside this workspace. Guard did not download or execute a replacement.",
+                "cucumber-js" => "cucumber-js is not installed inside this workspace. Guard did not download or execute a replacement.",
                 _ => "Vitest is not installed inside this workspace. Guard did not download or execute a replacement.",
             },
         ));

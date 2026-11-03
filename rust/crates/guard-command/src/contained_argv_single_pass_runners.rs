@@ -1,14 +1,17 @@
 //! Reading the Node test runners that take one pass by default.
 //!
 //! Vitest, Jest, Mocha and AVA each carry enough of their own parser to need
-//! their own reading. The five here do not. Jasmine, uvu, tape and tsd have
-//! no watch mode at all, and QUnit's is a single flag, so what these readings
-//! mostly name is the words that run something other than the suite:
-//! scaffolding a project, copying example files in, or watching. Everything
-//! else on their lines is an option value or a spec file, and the shared
-//! workspace screen answers for those the way it does for the other four.
+//! their own reading. The six here do not. Jasmine, uvu, tape, tsd and
+//! cucumber-js have no watch mode at all, and QUnit's is a single flag, so
+//! what these readings mostly name is the words that do something other than
+//! run the suite: scaffolding a project, copying example files in, watching,
+//! or sending the report somewhere. Everything else on their lines is an
+//! option value or a spec file, and the shared workspace screen answers for
+//! those the way it does for the other four.
 
-use super::runner_calls::{option_name, reads_its_own_workspace, short_options_carry_watch};
+use super::runner_calls::{
+    before_terminator, option_name, reads_its_own_workspace, short_options_carry_watch,
+};
 
 /// True when a Jasmine call both runs its specs once and takes everything it
 /// loads from the workspace.
@@ -103,4 +106,33 @@ pub(crate) fn tape_contained_call(arguments: &[String]) -> bool {
 /// on its line are all it reaches, and the workspace screen answers for them.
 pub(crate) fn tsd_contained_call(arguments: &[String]) -> bool {
     reads_its_own_workspace(arguments)
+}
+
+/// True when a cucumber-js call both finishes on its own and takes
+/// everything it loads from the workspace.
+pub(crate) fn cucumber_contained_call(arguments: &[String]) -> bool {
+    cucumber_runs_once(arguments) && reads_its_own_workspace(arguments)
+}
+
+/// cucumber-js has no watch mode and no command verbs. Its operands are
+/// feature files, directories or `FILE:LINE` locations, and the rest of its
+/// line is options commander declares: the ones that name something loadable
+/// -- `--config`, `--require`, `--import`, `--loader`, `--require-module`,
+/// `--plugin`, `--profile` -- all name a path or a module specifier, and the
+/// shared workspace screen answers for those the way it does for Mocha's.
+///
+/// One option answers to nothing on the line. `--publish` uploads the run's
+/// report to cucumber's hosted reports service, so the call reaches the
+/// network rather than the workspace, and no path in it says so. A line
+/// carrying that word keeps its review.
+///
+/// commander matches an option by the exact spelling it declares: it expands
+/// no abbreviation and folds no case, so `--publish` is the only name for the
+/// flag. It accepts an attached value for a declared boolean and still reads
+/// the flag as set, so `--publish=false` publishes too and is read here with
+/// the bare word. Options stop at `--`, after which every word is an operand.
+pub(crate) fn cucumber_runs_once(arguments: &[String]) -> bool {
+    !before_terminator(arguments)
+        .iter()
+        .any(|argument| argument == "--publish" || argument.starts_with("--publish="))
 }
